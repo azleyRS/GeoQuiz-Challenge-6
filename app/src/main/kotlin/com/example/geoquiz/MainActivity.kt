@@ -7,6 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 
 private const val TAG = "MainActivity"
 
@@ -16,16 +17,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nextButton: Button
     private lateinit var questionTextView: TextView
 
-    private val questionBank = listOf(
-        Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true)
-    )
-
-    private var currentIndex = 0
+    private val quizViewModel: QuizViewModel by lazy {
+        Log.d(TAG, "Got a QuizViewModel")
+        ViewModelProvider(this).get(QuizViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         nextButton.setOnClickListener {
-            currentIndex = (currentIndex + 1) % questionBank.size
+            quizViewModel.moveToNext()
             updateQuestion()
         }
 
@@ -79,9 +74,8 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun updateQuestion() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
     }
 
@@ -90,7 +84,7 @@ class MainActivity : AppCompatActivity() {
 
     @StringRes
     private fun checkIfCorrect(givenAnswer: Boolean): Int =
-        if (givenAnswer == questionBank[currentIndex].answer) {
+        if (givenAnswer == quizViewModel.currentQuestionAnswer) {
             R.string.correct_toast
         } else R.string.incorrect_toast
 }
