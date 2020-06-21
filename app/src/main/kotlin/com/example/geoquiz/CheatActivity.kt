@@ -1,5 +1,6 @@
 package com.example.geoquiz
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
+const val EXTRA_ANSWER_SHOW = "EXTRA_ANSWER_SHOW"
 private const val EXTRA_ANSWER_IS_TRUE = "EXTRA_ANSWER_IS_TRUE"
 
 class CheatActivity : AppCompatActivity() {
@@ -25,7 +27,13 @@ class CheatActivity : AppCompatActivity() {
         showAnswerButton.setOnClickListener {
             val answerText = if (answerIsTrue) R.string.true_button else R.string.false_button
             answerTextView.setText(answerText)
+            setAnswerShownResult(true)
         }
+    }
+
+    private fun setAnswerShownResult(isAnswerShown: Boolean) {
+        val data = Intent().apply { putExtra(EXTRA_ANSWER_SHOW, isAnswerShown) }
+        setResult(Activity.RESULT_OK, data)
     }
 
     companion object {

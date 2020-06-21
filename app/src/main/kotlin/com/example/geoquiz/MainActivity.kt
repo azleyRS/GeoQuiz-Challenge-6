@@ -1,5 +1,7 @@
 package com.example.geoquiz
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -11,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "index"
+private const val REQUEST_CODE_CHEAT = 0
 
 class MainActivity : AppCompatActivity() {
     private lateinit var trueButton: Button
@@ -54,10 +57,20 @@ class MainActivity : AppCompatActivity() {
         cheatButton.setOnClickListener {
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this, answerIsTrue)
-            startActivity(intent)
+            startActivityForResult(intent, REQUEST_CODE_CHEAT)
         }
 
         updateQuestion()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            quizViewModel.isCheater = data?.getBooleanExtra(EXTRA_ANSWER_SHOW, false) ?: false
+        }
     }
 
     override fun onStart() {
@@ -101,8 +114,9 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, checkIfCorrect(givenAnswer), Toast.LENGTH_SHORT).show()
 
     @StringRes
-    private fun checkIfCorrect(givenAnswer: Boolean): Int =
-        if (givenAnswer == quizViewModel.currentQuestionAnswer) {
-            R.string.correct_toast
-        } else R.string.incorrect_toast
+    private fun checkIfCorrect(givenAnswer: Boolean): Int = when {
+        quizViewModel.isCheater -> R.string.judgment_toast
+        givenAnswer -> R.string.correct_toast
+        else -> R.string.incorrect_toast
+    }
 }
