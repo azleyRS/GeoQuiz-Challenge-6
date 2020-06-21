@@ -69,7 +69,8 @@ class MainActivity : AppCompatActivity() {
             return
         }
         if (requestCode == REQUEST_CODE_CHEAT) {
-            quizViewModel.isCheater = data?.getBooleanExtra(EXTRA_ANSWER_SHOW, false) ?: false
+            val wasCheating = data?.getBooleanExtra(EXTRA_ANSWER_SHOW, false) ?: false
+            quizViewModel.markCheatedQuestion(wasCheating)
         }
     }
 
@@ -115,7 +116,7 @@ class MainActivity : AppCompatActivity() {
 
     @StringRes
     private fun checkIfCorrect(givenAnswer: Boolean): Int = when {
-        quizViewModel.isCheater -> R.string.judgment_toast
+        quizViewModel.wasCheating -> R.string.judgment_toast
         givenAnswer -> R.string.correct_toast
         else -> R.string.incorrect_toast
     }
